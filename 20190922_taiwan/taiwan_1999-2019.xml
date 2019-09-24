@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<sod>
+<eventArm>
+    <fdsnEvent>
+        <originTimeRange>
+            <startTime>1999-09-19T00:00:00.000</startTime>
+            <endTime>2019-09-19T00:00:00.000</endTime>
+        </originTimeRange>
+        <boxArea>
+            <latitudeRange>
+                <min>21.5</min>
+                <max>25.5</max>
+            </latitudeRange>
+            <longitudeRange>
+                <min>119</min>
+                <max>122.5</max>
+            </longitudeRange>
+        </boxArea>
+        <magnitudeRange>
+            <min>6</min>
+            <max>10</max>
+        </magnitudeRange>
+    </fdsnEvent>
+    <printlineEventProcess/>
+    <CSVEventPrinter>  <!-- save catalog to csv file -->
+        <filename>taiwan_1999-2019.txt</filename>
+    </CSVEventPrinter>
+</eventArm>
+<networkArm>
+    <fdsnStation>
+        <runTimeRange>
+            <startTime>1999-09-19T00:00:00.000</startTime>
+            <endTime>2019-09-19T00:00:00.000</endTime>
+        </runTimeRange>
+        <stationPointDistance>
+            <latitude>24</latitude>
+            <longitude>121</longitude>
+            <unit>KILOMETER</unit>
+            <min>0</min>
+            <max>500</max>
+        </stationPointDistance>
+        <channelCode>BH?</channelCode>
+    </fdsnStation>
+    <printlineChannelProcess/>
+</networkArm>
+</sod>
