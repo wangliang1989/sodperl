@@ -3,8 +3,8 @@
 <eventArm>
     <fdsnEvent>
         <originTimeRange>
-            <startTime>1999-09-19T00:00:00.000</startTime>
-            <endTime>2019-09-19T00:00:00.000</endTime>
+            <startTime>1999-09-19T00:00:00</startTime>
+            <endTime>2019-09-19T00:00:00</endTime>
         </originTimeRange>
         <boxArea>
             <latitudeRange>
@@ -17,30 +17,53 @@
             </longitudeRange>
         </boxArea>
         <magnitudeRange>
-            <min>6</min>
+            <min>7</min>
             <max>10</max>
         </magnitudeRange>
     </fdsnEvent>
-    <printlineEventProcess/>
+    <!-- <printlineEventProcess/> -->
     <CSVEventPrinter>  <!-- save catalog to csv file -->
-        <filename>taiwan_1999-2019.txt</filename>
+        <filename>taiwan_1999-2019_cat.txt</filename>
     </CSVEventPrinter>
 </eventArm>
 <networkArm>
     <fdsnStation>
         <runTimeRange>
-            <startTime>1999-09-19T00:00:00.000</startTime>
-            <endTime>2019-09-19T00:00:00.000</endTime>
+            <startTime>1999-09-19T00:00:00</startTime>
+            <endTime>2019-09-19T00:00:00</endTime>
         </runTimeRange>
         <stationPointDistance>
             <latitude>24</latitude>
             <longitude>121</longitude>
-            <unit>KILOMETER</unit>
+            <unit>DEGREE</unit>
             <min>0</min>
-            <max>500</max>
+            <max>3</max>
         </stationPointDistance>
         <channelCode>BH?</channelCode>
     </fdsnStation>
-    <printlineChannelProcess/>
+    <!-- <printlineStaProcess/> -->
+    <CSVStaPrinter>  <!-- save catalog to csv file -->
+        <filename>taiwan_1999-2019_sta.txt</filename>
+    </CSVStaPrinter>
 </networkArm>
+<waveformArm>
+    <distanceRange>
+        <unit>DEGREE</unit>
+        <min>0</min>
+        <max>2</max>
+    </distanceRange>
+    <phaseRequest>
+        <model>prem</model>
+        <beginPhase>ttp</beginPhase>
+        <beginOffset>
+            <unit>SECOND</unit>
+            <value>-10</value>
+        </beginOffset>
+        <endPhase>tts</endPhase>
+        <endOffset>
+            <unit>SECOND</unit>
+            <value>300</value>
+        </endOffset>
+    </phaseRequest>
+</waveformArm>
 </sod>

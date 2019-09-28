@@ -3,16 +3,16 @@ use strict;
 use warnings;
 
 sub eventArm () {
-    my ($xmlfile) = @_;
-    my @eventinfo = &fdsnEvent($xmlfile);
+    my ($dom) = @_;
+    my @eventinfo = &fdsnEvent($dom);
     my $cmd = shift @eventinfo;
-    my $printlineEventProcess = &explain($xmlfile, "eventArm/printlineEventProcess");
+    my $printlineEventProcess = &explain($dom, "eventArm/printlineEventProcess");
     unless ($printlineEventProcess eq " ") {
         foreach (@eventinfo) {
             print "$_\n";
         }
     }
-    my $filename = &explain($xmlfile, "eventArm/CSVEventPrinter/filename");
+    my $filename = &explain($dom, "eventArm/CSVEventPrinter/filename");
     unless ($filename eq " ") {
         open (OUT, "> $filename") or die;
         print OUT "# $cmd\n";
@@ -24,11 +24,11 @@ sub eventArm () {
     return (@eventinfo);
 }
 sub fdsnEvent () {
-    my ($xmlfile) = @_;
-    my $cmd = 'fetchevent';
-    my $time = &rangeTime_event($xmlfile, 'eventArm/fdsnEvent/originTimeRange/');
-    my $box = &rangeBox_event($xmlfile, 'eventArm/fdsnEvent/boxArea/');
-    my $mag = &rangeMag($xmlfile, "eventArm/fdsnEvent/magnitudeRange/");
+    my ($dom) = @_;
+    my $cmd = 'Fetchevent';
+    my $time = &rangeTime_event($dom, 'eventArm/fdsnEvent/originTimeRange/');
+    my $box = &rangeBox_event($dom, 'eventArm/fdsnEvent/boxArea/');
+    my $mag = &rangeMag($dom, "eventArm/fdsnEvent/magnitudeRange/");
     foreach ($time, $box, $mag) {
         $cmd = "$cmd $_" unless ($_ eq " ");
     }
@@ -50,15 +50,15 @@ sub fdsnEvent () {
     return(@out);
 }
 sub rangeMag () {
-    my ($xmlfile, $in) = @_;
-    my $mag = &getminmax($xmlfile, $in);
+    my ($dom, $in) = @_;
+    my $mag = &minmax_event($dom, $in);
     $mag = "--mag $mag" unless ($mag eq " ");
     return ($mag);
 }
 sub rangeTime_event () {
-    my ($xmlfile, $in) = @_;
-    my $startTime = &explain($xmlfile, "$in/startTime");
-    my $endTime = &explain($xmlfile, "$in/endTime");
+    my ($dom, $in) = @_;
+    my $startTime = &explain($dom, "$in/startTime");
+    my $endTime = &explain($dom, "$in/endTime");
     $startTime =~ s/T/,/g unless ($startTime eq " ");
     $endTime =~ s/T/,/g unless ($endTime eq " ");
     my $time = " ";
@@ -70,9 +70,9 @@ sub rangeTime_event () {
     return ($time);
 }
 sub rangeBox_event () {
-    my ($xmlfile, $in) = @_;
-    my $lat = &getminmax($xmlfile, "$in/latitudeRange");
-    my $lon = &getminmax($xmlfile, "$in/longitudeRange");
+    my ($dom, $in) = @_;
+    my $lat = &minmax_event($dom, "$in/latitudeRange");
+    my $lon = &minmax_event($dom, "$in/longitudeRange");
     my $space = " ";
     unless ($lat eq " ") {
         $space = "--lat $lat";
@@ -81,6 +81,14 @@ sub rangeBox_event () {
         $space = "$space --lon $lon";
     }
     return ($space);
+}
+sub minmax_event () {
+    my ($dom, $in) = @_;
+    my $min = &explain($dom, "$in/min");
+    my $max = &explain($dom, "$in/max");
+    my $out = "$min:$max";
+    $out = " " if ($out eq " : ");
+    return ($out);
 }
 
 1;

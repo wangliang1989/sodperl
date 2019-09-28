@@ -51,7 +51,6 @@ sub waveformArm () {
             my $fetch = "FetchData -F -N $net -S $sta -C $cha -s $b -e $e -o ${net}_${sta}.mseed -m ${net}_${sta}.meta -rd .";
             print OUT "$fetch\n";
             system $fetch;
-            system "mseed2sac ${net}_${sta}.mseed -m ${net}_${sta}.meta" if (-e "${net}_${sta}.meta");
         }
         close(OUT);
         chdir ".." or die;
