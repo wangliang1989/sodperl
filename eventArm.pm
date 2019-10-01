@@ -2,20 +2,21 @@
 use strict;
 use warnings;
 
-sub eventArm () {
+sub eventArm {
     my ($dom) = @_;
-    my @eventinfo = &fdsnEvent($dom);
+    my @eventinfo = fdsnEvent($dom);
     my $cmd = shift @eventinfo;
-    my $printlineEventProcess = &explain($dom, "eventArm/printlineEventProcess");
+    @eventinfo = fakeevent($dom, \@eventinfo);
+    my $printlineEventProcess = explain($dom, "eventArm/printlineEventProcess");
     unless ($printlineEventProcess eq " ") {
         foreach (@eventinfo) {
             print "$_\n";
         }
     }
-    my $filename = &explain($dom, "eventArm/CSVEventPrinter/filename");
+    my $filename = explain($dom, "eventArm/CSVEventPrinter/filename");
     unless ($filename eq " ") {
         open (OUT, "> $filename") or die;
-        print OUT "# $cmd\n";
+        print OUT "# $cmd\n" if (defined($cmd));
         foreach (@eventinfo) {
             print OUT "$_\n";
         }
@@ -23,42 +24,66 @@ sub eventArm () {
     }
     return (@eventinfo);
 }
-sub fdsnEvent () {
+sub fakeevent {
+    my ($dom, $oldeventinfo) = @_;
+    my @out;
+    foreach my $eve (@{$oldeventinfo}) {
+        push @out, $eve;
+    }
+    my $start = explain($dom, "eventArm/periodicFakeEventSource/startTime");
+    my $interval = explain($dom, "eventArm/periodicFakeEventSource/interval/value");
+    my $num = explain($dom, "eventArm/periodicFakeEventSource/numEvents");
+
+    unless (($start eq " ") and ($interval eq " ") and ($num eq " ")) {
+        ($start) = gettimegm ($start);
+        $num = max(0, int ($num - 1));
+        for (my $i = 0; $i <= $num; $i++) {
+            my $time = $start + $i * $interval;
+            my ($origin) = gettime($time);
+            my $id = time2dir($origin);
+            push @out, "$id $origin 104 29 10 5 Mw";
+        }
+    }
+    return (@out);
+}
+sub fdsnEvent {
     my ($dom) = @_;
     my $cmd = 'Fetchevent';
-    my $time = &rangeTime_event($dom, 'eventArm/fdsnEvent/originTimeRange/');
-    my $box = &rangeBox_event($dom, 'eventArm/fdsnEvent/boxArea/');
-    my $mag = &rangeMag($dom, "eventArm/fdsnEvent/magnitudeRange/");
+    my $time = rangeTime_event($dom, 'eventArm/fdsnEvent/originTimeRange/');
+    my $box = rangeBox_event($dom, 'eventArm/fdsnEvent/boxArea/');
+    my $mag = rangeMag($dom, "eventArm/fdsnEvent/magnitudeRange/");
     foreach ($time, $box, $mag) {
         $cmd = "$cmd $_" unless ($_ eq " ");
     }
-    my @info = split m/\n/, `$cmd`;
     my @out;
-    push @out, $cmd;
-    foreach (@info) {
-        #841715  |1999/09/22 00:49:44.020 | 23.696 | 121.099 |  40.3|ISC|ISC|ISC,1656276|Mw,5.8,HRVD|TAIWAN
-        #20180815235908 2018-08-15T23:59:08.320 -116.7848330 33.4958330 5.06 0.61 Ml
-        my ($origin, $evla, $evlo, $evdp) = (split m/\|/)[1..4];
-        my ($maginfo) = (split m/\|/)[8];
-        my ($magtype, $mag) = split ",", $maginfo;
-        my ($date, $time) = split m/\s+/, trim($origin);
-        my ($year, $mon, $day) = split m/\//, $date;
-        my ($hour, $min, $sec) = split m/:/, $time;
-        my ($isec) = split m/\./, $sec;
-        push @out, "$year$mon$day$hour$min$isec ${year}-${mon}-${day}T${hour}:${min}:${sec} $evlo $evla $evdp $mag $magtype";
+    unless ($cmd eq 'Fetchevent') {
+        my @info = split m/\n/, `$cmd`;
+        push @out, $cmd;
+        foreach (@info) {
+            #841715  |1999/09/22 00:49:44.020 | 23.696 | 121.099 |  40.3|ISC|ISC|ISC,1656276|Mw,5.8,HRVD|TAIWAN
+            #20180815235908 2018-08-15T23:59:08.320 -116.7848330 33.4958330 5.06 0.61 Ml
+            my ($origin, $evla, $evlo, $evdp) = (split m/\|/)[1..4];
+            my ($maginfo) = (split m/\|/)[8];
+            my ($magtype, $mag) = split ",", $maginfo;
+            my ($date, $time) = split m/\s+/, trim($origin);
+            my ($year, $mon, $day) = split m/\//, $date;
+            my ($hour, $min, $sec) = split m/:/, $time;
+            my ($isec) = split m/\./, $sec;
+            push @out, "$year$mon$day$hour$min$isec ${year}-${mon}-${day}T${hour}:${min}:${sec} $evlo $evla $evdp $mag $magtype";
+        }
     }
     return(@out);
 }
 sub rangeMag () {
     my ($dom, $in) = @_;
-    my $mag = &minmax_event($dom, $in);
+    my $mag = minmax_event($dom, $in);
     $mag = "--mag $mag" unless ($mag eq " ");
     return ($mag);
 }
 sub rangeTime_event () {
     my ($dom, $in) = @_;
-    my $startTime = &explain($dom, "$in/startTime");
-    my $endTime = &explain($dom, "$in/endTime");
+    my $startTime = explain($dom, "$in/startTime");
+    my $endTime = explain($dom, "$in/endTime");
     $startTime =~ s/T/,/g unless ($startTime eq " ");
     $endTime =~ s/T/,/g unless ($endTime eq " ");
     my $time = " ";
@@ -71,8 +96,8 @@ sub rangeTime_event () {
 }
 sub rangeBox_event () {
     my ($dom, $in) = @_;
-    my $lat = &minmax_event($dom, "$in/latitudeRange");
-    my $lon = &minmax_event($dom, "$in/longitudeRange");
+    my $lat = minmax_event($dom, "$in/latitudeRange");
+    my $lon = minmax_event($dom, "$in/longitudeRange");
     my $space = " ";
     unless ($lat eq " ") {
         $space = "--lat $lat";
@@ -84,11 +109,10 @@ sub rangeBox_event () {
 }
 sub minmax_event () {
     my ($dom, $in) = @_;
-    my $min = &explain($dom, "$in/min");
-    my $max = &explain($dom, "$in/max");
+    my $min = explain($dom, "$in/min");
+    my $max = explain($dom, "$in/max");
     my $out = "$min:$max";
     $out = " " if ($out eq " : ");
     return ($out);
 }
-
 1;
