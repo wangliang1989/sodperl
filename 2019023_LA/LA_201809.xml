@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<sod>
+<eventArm>
+    <periodicFakeEventSource>
+        <startTime>2018-09-01T00:00:00</startTime>
+        <interval>
+            <unit>SECOND</unit>
+            <value>86400</value>
+        </interval>
+        <numEvents>3</numEvents>
+    </periodicFakeEventSource>
+    <!-- <printlineEventProcess/> -->
+    <CSVEventPrinter>  <!-- save catalog to csv file -->
+        <filename>LA_201809_fake.txt</filename>
+    </CSVEventPrinter>
+</eventArm>
+<networkArm>
+    <fdsnStation>
+        <runTimeRange>
+            <startTime>2018-09-01T00:00:00</startTime>
+            <endTime>2018-09-30T00:00:00</endTime>
+        </runTimeRange>
+        <stationPointDistance>
+            <latitude>34</latitude>
+            <longitude>-118</longitude>
+            <unit>DEGREE</unit>
+            <min>0</min>
+            <max>0.2</max>
+        </stationPointDistance>
+        <channelCode>BH?</channelCode>
+    </fdsnStation>
+    <!-- <printlineStaProcess/> -->
+    <CSVStaPrinter>  <!-- save catalog to csv file -->
+        <filename>LA_201809_sta.txt</filename>
+    </CSVStaPrinter>
+</networkArm>
+<waveformArm>
+    <originOffsetRequest>
+        <beginOffset>
+            <unit>MINUTE</unit>
+            <value>0</value>
+        </beginOffset>
+        <endOffset>
+            <unit>SECOND</unit>
+            <value>86400</value>
+        </endOffset>
+    </originOffsetRequest>
+</waveformArm>
+</sod>
